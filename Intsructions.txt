@@ -1,0 +1,25 @@
+What we are actually doing is. creatig an ec2 server with the help of Terraform and using github action we are deploying
+in it a server using docker hub we are saving the image
+
+1. Crete terraform files
+    variables.tf
+    outputs.tf
+    main.tf
+    provider.tf
+    iam.tf
+
+2.  Create workflowfile
+   .github/workflows/terraform.yml
+
+3.  Create Repo in Github action
+    
+    Add secret for 1. Aws 2. Github credentials
+
+4.  Configure aws credentials in vs code also using aws configure
+    in vs itself they intiate
+    terraform init
+    terraform apply
+
+5.  Move the code to git repo 
+
+6.  Run the github action

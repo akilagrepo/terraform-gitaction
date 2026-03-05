@@ -1,0 +1,78 @@
+name: Build Push Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+
+
+    - name: Install Dependencies
+      run: npm install
+
+
+    - name: Build App
+      run: npm run build || true
+
+
+    - name: Login to DockerHub
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+
+    - name: Build Docker Image
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/react-random .
+
+
+    - name: Push Docker Image
+      run: |
+        docker push ${{ secrets.DOCKER_USERNAME }}/react-random
+
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+
+    - name: Terraform Init
+      run: terraform init
+      working-directory: terraform
+
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
+      working-directory: terraform
+
+
+    - name: Get EC2 Public IP
+      id: terraform_output
+      run: |
+        echo "EC2_IP=$(terraform output -raw ec2_public_ip)" >> $GITHUB_ENV
+      working-directory: terraform
+
+
+    - name: Deploy Docker Container
+      uses: appleboy/ssh-action@v1
+      with:
+        host: ${{ env.EC2_IP }}
+        username: ec2-user
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/react-random
+          docker stop react-app || true
+          docker rm react-app || true
+          docker run -d -p 3000:3000 --name react-app ${{ secrets.DOCKER_USERNAME }}/react-random
