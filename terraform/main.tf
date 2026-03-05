@@ -1,5 +1,6 @@
 resource "aws_security_group" "app_sg" {
-  name = "react-app-sg"
+
+  name = "react-app-sg-terraform"
 
   ingress {
     from_port   = 22
@@ -25,17 +26,15 @@ resource "aws_security_group" "app_sg" {
 
 resource "aws_instance" "app_server" {
 
-  ami           = "ami-0f5ee92e2d63afc18"   # Ubuntu AMI (Mumbai)
+  ami           = "ami-0f5ee92e2d63afc18"
   instance_type = "t2.micro"
   key_name      = "mum-key"
 
-  security_groups = [aws_security_group.app_sg.name]
+  vpc_security_group_ids = [aws_security_group.app_sg.id]
 
   user_data = <<-EOF
               #!/bin/bash
               apt update -y
-              apt upgrade -y
-
               apt install docker.io -y
 
               systemctl start docker
@@ -43,6 +42,7 @@ resource "aws_instance" "app_server" {
 
               usermod -aG docker ubuntu
               EOF
+
   tags = {
     Name = "Terraform-React-App"
   }
