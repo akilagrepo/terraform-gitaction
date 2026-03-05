@@ -1,3 +1,8 @@
+learn every time we need to crate secrets... 
+Learn dockerfile and deployment yml files path specification
+
+
+
 What we are actually doing is. creatig an ec2 server with the help of Terraform and using github action we are deploying
 in it a server using docker hub we are saving the image
 
