@@ -1,7 +1,7 @@
 {
   "name": "ci-test",
   "version": "1.0.0",
-  "description": "GitHub Actions test",
+  "description": "GitHub Actions testing",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
